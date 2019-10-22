@@ -6,7 +6,7 @@
 #    By: omulder <omulder@student.codam.nl>           +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/20 17:34:39 by omulder        #+#    #+#                 #
-#    Updated: 2019/10/22 23:35:12 by omulder       ########   odam.nl          #
+#    Updated: 2019/10/22 23:38:18 by omulder       ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -166,7 +166,7 @@ class Machine:
 			elif t['action'] == "LEFT":
 				self.head -= 1
 			else:
-				print(f"Illegal Action: {t.['action']}")
+				print(f"Illegal Action: {t['action']}")
 				raise StopIteration
 			self.current_state = t['to_state']
 		else:
