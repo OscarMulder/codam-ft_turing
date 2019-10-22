@@ -6,7 +6,7 @@
 #    By: omulder <omulder@student.codam.nl>           +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/20 17:34:39 by omulder        #+#    #+#                 #
-#    Updated: 2019/10/22 19:05:30 by omulder       ########   odam.nl          #
+#    Updated: 2019/10/22 22:25:17 by omulder       ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,7 +53,8 @@ class Transitions:
 		if (char in self.transitions):
 			return self.transitions[char]
 		else:
-			return None # add error here and catch it later
+			print(f'Machine blocked: Invalid state transition')
+			return None
 
 	def print_one(self, char):
 		t = self.transitions[char]
@@ -95,6 +96,10 @@ class Machine:
 			if not state in jsonmachine['transitions']:
 				if not state in jsonmachine['finals']:
 					raise ValueError(f"State: {state} not found in transitions table")
+		for state in jsonmachine['transitions']:
+			if not state in jsonmachine['states']:
+				if not state in jsonmachine['finals']:
+					raise ValueError(f"State: {state} not found in states list")
 		if not jsonmachine['initial'] in jsonmachine['transitions']:
 			raise ValueError(f"Initial state: {jsonmachine['initial']} not in transitions table")
 	
@@ -125,9 +130,9 @@ class Machine:
 		if self.current_state in self.finals:
 			raise StopIteration
 		cur_char = self.tape[self.head]
-		self.set_print(cur_char, 10)
 		t = self.transitions[self.current_state][cur_char]
 		if t != None:
+			self.set_print(cur_char, 10)
 			self.tape[self.head] = t['write']
 			if t['action'] == "RIGHT":
 				self.head += 1
@@ -137,7 +142,6 @@ class Machine:
 				pass
 			self.current_state = t['to_state']
 		else:
-
 			raise StopIteration
 		return self
 
