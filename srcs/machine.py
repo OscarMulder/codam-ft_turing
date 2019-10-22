@@ -6,7 +6,7 @@
 #    By: omulder <omulder@student.codam.nl>           +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/20 17:34:39 by omulder        #+#    #+#                 #
-#    Updated: 2019/10/22 23:25:17 by omulder       ########   odam.nl          #
+#    Updated: 2019/10/22 23:35:12 by omulder       ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,13 +53,18 @@ class Tape:
 		return s
 
 class Transitions:
+	"""Defines the transitions of a state."""
 	def __init__(self, name, transitions):
+		"""Store all transitions using the 'read' value as a key."""
 		self.name = name
 		self.transitions = {}
 		for transition in transitions:
 			self.transitions[transition['read']] = transition
 
 	def __getitem__(self, char):
+		"""Return the transitions based on the char that was read. If no transition
+		is found the machine is blocked.
+		"""
 		if (char in self.transitions):
 			return self.transitions[char]
 		else:
@@ -67,11 +72,13 @@ class Transitions:
 			return None
 
 	def print_one(self, char):
+		"""Return one transition as a string."""
 		t = self.transitions[char]
 		s = f"({self.name}, {t['read']}) -> ({t['to_state']}, {t['write']}, {t['action']})"
 		return s
 	
 	def __str__(self):
+		"""Return all transitions as a string."""
 		s = ""
 		for t in self.transitions:
 			s += "({name}, {read}) -> ({to_state}, {write}, {action})\n".format(
@@ -83,6 +90,9 @@ class Transitions:
 class Machine:
 	'''Define the turing machine'''
 	def __init__(self, jsonmachine, tape, to_print = True):
+		"""Stores and checks all input of the machine.
+		By default prints a description of the machine if it is valid.
+		"""
 		self.check_jsonmachine(jsonmachine)
 		self.name = jsonmachine['name']
 		self.alphabet = jsonmachine['alphabet']
@@ -100,6 +110,8 @@ class Machine:
 			print(self)
 	
 	def check_jsonmachine(self, jsonmachine):
+		"""Check if all the keys needed exists.
+		Check if all the states defined match."""
 		if not all(key in jsonmachine for key in ('name', 'alphabet', 'blank', 'states', 'initial', 'finals', 'transitions')):
 			raise ValueError('Not all keys found in json file')
 		for state in jsonmachine['states']:
@@ -114,10 +126,13 @@ class Machine:
 			raise ValueError(f"Initial state: {jsonmachine['initial']} not in transitions table")
 	
 	def check_tape(self, tape):
+		"""Check if the input for tape is valid."""
 		if not all((c in self.alphabet) for c in tape):
 			raise ValueError('Not all characters in tape are defined in alphabet')
 
 	def set_print(self, cur_char, l):
+		"""Prints part of Tape based on the value of l.
+		l defines how many characters are printed on either side of cur_char."""
 		self.print = "["
 		tmp = self.tape.to_string_front(self.head)
 		if len(tmp) > l:
@@ -134,9 +149,11 @@ class Machine:
 		self.print += self.transitions[self.current_state].print_one(cur_char)
 
 	def __iter__(self):
+		"""Define the iterator."""
 		return self
 
 	def __next__(self):
+		"""Does exactly one state transition."""
 		if self.current_state in self.finals:
 			raise StopIteration
 		cur_char = self.tape[self.head]
@@ -149,13 +166,15 @@ class Machine:
 			elif t['action'] == "LEFT":
 				self.head -= 1
 			else:
-				pass
+				print(f"Illegal Action: {t.['action']}")
+				raise StopIteration
 			self.current_state = t['to_state']
 		else:
 			raise StopIteration
 		return self
 
 	def __str__(self):
+		"""Returns a discription of a state machine as a string."""
 		stars = '*' * 80
 		s = f"{stars}\nName\t: {self.name}\nAlphabet: {self.alphabet}\nInitial\t: {self.current_state}\nFinals\t: {self.finals}\n"
 		for key in self.transitions:
