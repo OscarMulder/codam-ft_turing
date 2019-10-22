@@ -6,7 +6,7 @@
 #    By: omulder <omulder@student.codam.nl>           +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/20 17:34:39 by omulder        #+#    #+#                 #
-#    Updated: 2019/10/22 13:00:10 by omulder       ########   odam.nl          #
+#    Updated: 2019/10/22 19:05:30 by omulder       ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,10 +20,10 @@ class Tape:
 			return self.tape[index]
 		else:
 			return self.blank
-	
+
 	def __setitem__(self, i, c):
 		self.tape[i] = c
-	
+
 	def to_string_front(self, index):
 		s = ""
 		for i in range(0, index):
@@ -38,7 +38,7 @@ class Tape:
 
 	def __str__(self):
 		s = ""
-		for key, value in self.tape:
+		for _, value in self.tape:
 			s += value
 		return s
 
@@ -53,7 +53,7 @@ class Transitions:
 		if (char in self.transitions):
 			return self.transitions[char]
 		else:
-			return None
+			return None # add error here and catch it later
 
 	def print_one(self, char):
 		t = self.transitions[char]
@@ -113,7 +113,7 @@ class Machine:
 		if len(tmp) > l:
 			tmp = tmp[l]
 		self.print += tmp
-		for i in range(len(self.print), (l * 2 + 4)):
+		for _ in range(len(self.print), (l * 2 + 4)):
 			self.print += "."
 		self.print += "] "
 		self.print += self.transitions[self.current_state].print_one(cur_char)
@@ -137,6 +137,7 @@ class Machine:
 				pass
 			self.current_state = t['to_state']
 		else:
+
 			raise StopIteration
 		return self
 
