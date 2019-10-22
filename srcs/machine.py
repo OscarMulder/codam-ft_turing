@@ -6,7 +6,7 @@
 #    By: omulder <omulder@student.codam.nl>           +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/20 17:34:39 by omulder        #+#    #+#                 #
-#    Updated: 2019/10/20 17:34:41 by omulder       ########   odam.nl          #
+#    Updated: 2019/10/22 13:00:10 by omulder       ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -72,6 +72,7 @@ class Transitions:
 class Machine:
 	'''Define the turing machine'''
 	def __init__(self, jsonmachine, tape, to_print = True):
+		self.check_jsonmachine(jsonmachine)
 		self.name = jsonmachine['name']
 		self.alphabet = jsonmachine['alphabet']
 		self.blank = jsonmachine['blank']
@@ -79,21 +80,29 @@ class Machine:
 		self.current_state = jsonmachine['initial']
 		self.finals = jsonmachine['finals']
 		self.head = 0
+		self.check_tape(tape)
 		self.tape = Tape(tape, self.blank)
 		self.transitions = {}
 		for key in jsonmachine['transitions']:
 			self.transitions[key] = Transitions(key, jsonmachine['transitions'][key])
 		if to_print:
 			print(self)
+	
+	def check_jsonmachine(self, jsonmachine):
+		if not all(key in jsonmachine for key in ('name', 'alphabet', 'blank', 'states', 'initial', 'finals', 'transitions')):
+			raise ValueError('Not all keys found in json file')
+		for state in jsonmachine['states']:
+			if not state in jsonmachine['transitions']:
+				if not state in jsonmachine['finals']:
+					raise ValueError(f"State: {state} not found in transitions table")
+		if not jsonmachine['initial'] in jsonmachine['transitions']:
+			raise ValueError(f"Initial state: {jsonmachine['initial']} not in transitions table")
+	
+	def check_tape(self, tape):
+		if not all((c in self.alphabet) for c in tape):
+			raise ValueError('Not all characters in tape are defined in alphabet')
 
-	def __iter__(self):
-		return self
-
-	def __next__(self):
-		l = 10
-		if self.current_state in self.finals:
-			raise StopIteration
-		cur_char = self.tape[self.head]
+	def set_print(self, cur_char, l):
 		self.print = "["
 		tmp = self.tape.to_string_front(self.head)
 		if len(tmp) > l:
@@ -108,6 +117,15 @@ class Machine:
 			self.print += "."
 		self.print += "] "
 		self.print += self.transitions[self.current_state].print_one(cur_char)
+
+	def __iter__(self):
+		return self
+
+	def __next__(self):
+		if self.current_state in self.finals:
+			raise StopIteration
+		cur_char = self.tape[self.head]
+		self.set_print(cur_char, 10)
 		t = self.transitions[self.current_state][cur_char]
 		if t != None:
 			self.tape[self.head] = t['write']
@@ -123,8 +141,9 @@ class Machine:
 		return self
 
 	def __str__(self):
-		s = f"Name\t: {self.name}\nAlphabet: {self.alphabet}\nInitial\t: {self.current_state}\nFinals\t: {self.finals}\n"
+		stars = '*' * 80
+		s = f"{stars}\nName\t: {self.name}\nAlphabet: {self.alphabet}\nInitial\t: {self.current_state}\nFinals\t: {self.finals}\n"
 		for key in self.transitions:
 			s += str(self.transitions[key])
-		s += "********************************************************************************"
+		s += stars
 		return s
