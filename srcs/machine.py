@@ -6,37 +6,47 @@
 #    By: omulder <omulder@student.codam.nl>           +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/20 17:34:39 by omulder        #+#    #+#                 #
-#    Updated: 2019/10/22 22:25:17 by omulder       ########   odam.nl          #
+#    Updated: 2019/10/22 23:25:17 by omulder       ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
 class Tape:
+	"""Defines the infinite tape."""
 	def __init__(self, tape_str, blank):
+		"""Set blank character and create tape as a dictionary."""
 		self.blank = blank
 		self.tape = dict((enumerate(tape_str)))
 
 	def __getitem__(self, index):
+		"""Get character based on index (which can be negative).
+		If there is no character at the specified index, return the blank
+		character.
+		"""
 		if index in self.tape:
 			return self.tape[index]
 		else:
 			return self.blank
 
 	def __setitem__(self, i, c):
+		"""Set the character at index i to c"""
 		self.tape[i] = c
 
 	def to_string_front(self, index):
+		"""Get the tape from the lowest key to index as a string."""
 		s = ""
-		for i in range(0, index):
+		for i in range(min(self.tape, key=self.tape.get, default=0), index):
 			s += self.tape[i]
 		return s
 
 	def to_string_back(self, index):
+		"""Get the tape from index to the end as a string."""
 		s = ""
 		for i in range(index, len(self.tape)):
 			s += self.tape[i]
 		return s
 
 	def __str__(self):
+		""""Get the whole tape as a string."""
 		s = ""
 		for _, value in self.tape:
 			s += value
