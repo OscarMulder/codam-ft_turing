@@ -6,7 +6,7 @@
 #    By: omulder <omulder@student.codam.nl>           +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/20 17:34:39 by omulder        #+#    #+#                 #
-#    Updated: 2019/10/22 23:38:18 by omulder       ########   odam.nl          #
+#    Updated: 2019/10/25 15:08:33 by omulder       ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,7 +34,7 @@ class Tape:
 	def to_string_front(self, index):
 		"""Get the tape from the lowest key to index as a string."""
 		s = ""
-		for i in range(min(self.tape, key=self.tape.get, default=0), index):
+		for i in range(min(self.tape), index):
 			s += self.tape[i]
 		return s
 
